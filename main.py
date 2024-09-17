@@ -1,12 +1,11 @@
 import json
 import os
-
 import flet as ft
 
 
-class LoginPage(ft.UserControl):
-    def __init__(self):
-        super(LoginPage, self).__init__()
+class LoginPage:
+    def __init__(self, page):
+        self.page = page  # Guardamos la referencia a la página
         self.username = ft.TextField(label="User name")
         self.password = ft.TextField(label="Password")
 
@@ -25,8 +24,7 @@ class LoginPage(ft.UserControl):
                 ft.TextButton("Register me",
                               on_click=self.registerbtn
                               ),
-            ]
-            )
+            ])
         )
 
     def loginbtn(self, e):
@@ -52,11 +50,13 @@ class LoginPage(ft.UserControl):
             self.page.go("/private")
         else:
             print("Login failed !!!")
-            self.page.snack_bar = ft.SnackBar(
+            snack_bar = ft.SnackBar(
                 ft.Text("Wrong login", size=30),
                 bgcolor="red"
             )
-            self.page.snack_bar.open = True
+            # Añadir snack bar a la página usando overlay
+            self.page.overlay.append(snack_bar)
+            snack_bar.open = True
         self.page.update()
 
     def registerbtn(self, e):
@@ -64,15 +64,15 @@ class LoginPage(ft.UserControl):
         self.page.update()
 
 
-class PrivatePage(ft.UserControl):
-    def __init__(self):
-        super(PrivatePage, self).__init__()
+class PrivatePage:
+    def __init__(self, page):
+        self.page = page  # Guardamos la referencia a la página
 
     def build(self) -> ft.Container:
         msg = ''
         if self.page.session.contains_key("loginme"):
             datalogin = self.page.session.get("loginme")
-            if datalogin["value"] == True:
+            if datalogin["value"]:
                 name = datalogin["username"]
                 msg = f"Hello {name}"
         return ft.Container(
@@ -80,9 +80,7 @@ class PrivatePage(ft.UserControl):
             padding=10,
             content=ft.Column([
                 ft.Text("Welcome to inner section", size=30),
-                ft.Text(
-                    f"{msg}"
-                ),
+                ft.Text(f"{msg}"),
                 ft.ElevatedButton("Logout",
                                   bgcolor=ft.colors.RED,
                                   color=ft.colors.WHITE,
@@ -97,9 +95,9 @@ class PrivatePage(ft.UserControl):
         self.page.update()
 
 
-class RegisterPage(ft.UserControl):
-    def __init__(self):
-        super(RegisterPage, self).__init__()
+class RegisterPage:
+    def __init__(self, page):
+        self.page = page  # Guardamos la referencia a la página
         self.username = ft.TextField(label="User name")
         self.password = ft.TextField(label="Password")
 
@@ -122,10 +120,10 @@ class RegisterPage(ft.UserControl):
 
     def registerbtn(self, e):
         new_user = {
-            "name" : self.username.value,
-            "password" : self.password.value,
+            "name": self.username.value,
+            "password": self.password.value,
         }
-        data = {"users":[new_user]}
+        data = {"users": [new_user]}
         with open('login.json', 'w') as f:
             f.write(json.dumps(data))
 
@@ -136,62 +134,54 @@ class RegisterPage(ft.UserControl):
         self.page.go("/login")
         self.page.update()
 
+
 def main(page: ft.Page):
     current_working_directory = os.getcwd()
     print(f"Current working folder: {current_working_directory}")
 
-    page.window_width = 800
-    page.window_height = 600
-    page.window_center()
+    page.window.width = 800
+    page.window.height = 600
+    page.window.center()
+
+    # Pasamos la referencia de la página a cada vista
     page.views.append(
         ft.View(
             "/login",
-            [
-                LoginPage()
-            ]
-        ),
+            [LoginPage(page).build()]
+        )
     )
 
-
-    def route_change(e : ft.RouteChangeEvent):
+    def route_change(e: ft.RouteChangeEvent):
         print(f"Route changed to {e.route}")
-
         page.views.clear()
-        page.views.append(
-            ft.View(
-                "/login",
-                [
-                    LoginPage()
-                ]
-            ),
-        )
+
+        if page.route == '/login':
+            page.views.append(
+                ft.View(
+                    "/login",
+                    [LoginPage(page).build()]
+                )
+            )
 
         if page.route == '/private':
             page.views.append(
                 ft.View(
                     "/private",
-                    [
-                        PrivatePage()
-                    ]
-                ),
+                    [PrivatePage(page).build()]
+                )
             )
 
         if page.route == '/register':
             page.views.append(
                 ft.View(
                     "/register",
-                    [
-                        RegisterPage()
-                    ],
-                ),
+                    [RegisterPage(page).build()]
+                )
             )
+
         page.update()
 
-
-
     page.on_route_change = route_change
-
-    # page.go("/login")
     page.update()
 
 
