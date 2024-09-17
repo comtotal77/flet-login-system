@@ -6,6 +6,58 @@ class PrivatePage:
 
     def build(self) -> ft.Container:
         msg = ''
+
+        mydt = ft.DataTable (
+                columns=[
+                    ft.DataColumn(ft.Text("id")),
+                    ft.DataColumn(ft.Text("fecha_inic")),
+                    ft.DataColumn(ft.Text("almacen")),
+                    ft.DataColumn(ft.Text("actions")),
+                ],
+                rows=[
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text("1")),
+                            ft.DataCell(ft.Text("17/09/2024")),
+                            ft.DataCell(ft.Text("12")),
+                            ft.DataCell(ft.Row(
+                                [
+                                    ft.IconButton(ft.icons.PLAY_ARROW,icon_color="red",data=1,on_click=self.segunda),
+                                    ft.IconButton("create",icon_color="red",data=1,on_click=self.otraopcion),
+                                ])
+                            )
+                        ],
+                    ),
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text("2")),
+                            ft.DataCell(ft.Text("16/09/2024")),
+                            ft.DataCell(ft.Text("19")),
+                            ft.DataCell(ft.Row(
+                                [
+                                    ft.IconButton(ft.icons.PLAY_ARROW,icon_color="red",data=1,on_click=self.segunda),
+                                    ft.IconButton("create",icon_color="red",data=1,on_click=self.otraopcion),
+                                ])
+                            )
+                        ],
+                    ),
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text("3")),
+                            ft.DataCell(ft.Text("16/09/2024")),
+                            ft.DataCell(ft.Text("25")),
+                            ft.DataCell(ft.Row(
+                                [
+                                    ft.IconButton(ft.icons.PLAY_ARROW,icon_color="red",data=1,on_click=self.segunda),
+                                    ft.IconButton("create",icon_color="red",data=1,on_click=self.otraopcion),
+                                ])
+                            )
+                        ],
+                    ),        
+                ]
+            )
+
+
         if self.page.session.contains_key("loginme"):
             datalogin = self.page.session.get("loginme")
             if datalogin["value"]:
@@ -17,6 +69,7 @@ class PrivatePage:
             content=ft.Column([
                 ft.Text("Sección del usuario", size=30),
                 ft.Text(f"{msg}"),
+                mydt,
                 ft.Row([ft.ElevatedButton("Logout",
                                   bgcolor=ft.colors.RED,
                                   color=ft.colors.WHITE,
@@ -39,3 +92,6 @@ class PrivatePage:
     def segunda(self, e):
         self.page.go('/conteo')
         self.page.update()
+
+    def otraopcion(self, e):
+        pass
