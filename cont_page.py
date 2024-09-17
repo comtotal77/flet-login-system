@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv(".env")
-
+###Esto es de la segunda rama - commit 1
 #aprendizaje: txtSku lo defino en init y después lo llamo en todas ls instancias de la clase con self
 #             en cambio los demás (txtNombre,txtCantidad,btnInsertCount,txtResult) los creo en buid pero para poder llamarlos
 #             necesito decirle que son global
