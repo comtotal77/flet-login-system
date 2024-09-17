@@ -1,4 +1,11 @@
 import flet as ft
+import requests
+import json
+from dotenv import load_dotenv
+import os
+
+load_dotenv(".env")
+
 #aprendizaje: txtSku lo defino en init y después lo llamo en todas ls instancias de la clase con self
 #             en cambio los demás (txtNombre,txtCantidad,btnInsertCount,txtResult) los creo en buid pero para poder llamarlos
 #             necesito decirle que son global
@@ -6,6 +13,7 @@ class ContPage:
     def __init__(self, page):
         self.page = page  # Guardamos la referencia a la página
         self.txtSku=ft.TextField(label="Indica el SKU a buscar")
+        self.existencia=0
 
     def build(self) -> ft.Container:
         global txtNombre,txtCantidad,btnInsertCount,txtResult
@@ -52,23 +60,32 @@ class ContPage:
     def getDataArticle(self, e):
         #requests con la información de un artículo según esl sku
         url="http://127.0.0.1:5000/infoArt/SKU123456"
-        jsonresult={}
+        url = os.getenv("URL_ENDPOINT")
+        url += "/getAlmacenByArti/"+str(self.txtSku.value)+'/01'
+
+        payload = {}
+        headers = {}
+        response = requests.request("GET", url, headers=headers, data=payload)
+
+        jsonresult=json.loads(response.text)
         #linea para probar rama
-        jsonresult=[
-                        {
-                            "sku":"sku1",
-                            "nombre":"Articulo1",
-                            "descrip":"Otro articulo más de la tienda",
-                        },
-                        {
-                            "sku":"sku2",
-                            "nombre":"Articulo2",
-                            "descrip":"Otro articulo2 más de la tienda",
-                        }
-                   ]
+        # jsonresult=[
+        #                 {
+        #                     "sku":"sku1",
+        #                     "nombre":"Articulo1",
+        #                     "descrip":"Otro articulo más de la tienda",
+        #                 },
+        #                 {
+        #                     "sku":"sku2",
+        #                     "nombre":"Articulo2",
+        #                     "descrip":"Otro articulo2 más de la tienda",
+        #                 }
+        #            ]
         for item in jsonresult:
-            if item["sku"] == self.txtSku.value:
-                txtNombre.value =item["nombre"]
+            print(item["codigo"])
+            if item["codigo"] == self.txtSku.value:
+                txtNombre.value =str(item["nombre"])
+                self.existencia =item["existencia"]
                 txtNombre.visible = True   
                 txtCantidad.visible=True
                 btnInsertCount.visible=True                
@@ -80,7 +97,8 @@ class ContPage:
 
     def addToDB(self, e):
         print("presiono")
-
+        cantidad_interna=int(txtCantidad.value)-int(self.existencia)
+        print("en la BD se insertara la  diferencia:"+str(cantidad_interna))
         url="http://127.0.0.1:5000/addCont/idproducto/idconteo"
 
         res=200 #producto procesado
@@ -92,7 +110,7 @@ class ContPage:
         # Añadir snack bar a la página usando overlay
         self.page.overlay.append(snack_bar)
         snack_bar.open = True
-
+        self.existencia=0
         txtNombre.visible = False   
         txtCantidad.visible=False
         btnInsertCount.visible=False
