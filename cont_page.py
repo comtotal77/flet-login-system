@@ -89,7 +89,7 @@ class ContPage:
         txtNombre.visible = False   
         txtCantidad.visible=False
         btnInsertCount.visible=False
-        txtSku.value=""
+        self.txtSku.value=""
         self.page.update()
 
     def logout(self, e):
