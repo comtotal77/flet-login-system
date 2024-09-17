@@ -12,9 +12,13 @@ class ContPage:
         msg = ''
         if self.page.session.contains_key("loginme"):
             datalogin = self.page.session.get("loginme")
+            datalogin2 = self.page.session.get("idConteo")
+            if datalogin2:
+                idConteo = datalogin2["number"]
+            #si no retornar OJOOOOO
             if datalogin["value"]:
                 name = datalogin["username"]
-                msg = f"Hello 2da pagina {name}"
+                msg = f"Hello {name} estás en el conteo {idConteo}"
         #txtSku=ft.TextField(label="Indica el SKU a buscar")
         self.txtSku.on_focus = self.borrarSku
         txtNombre = ft.TextField(label="Nombre", visible=False, read_only=True)
@@ -25,6 +29,7 @@ class ContPage:
             bgcolor=ft.colors.BLUE_200,
             padding=10,
             content=ft.Column([
+                ft.Text(f"{msg}"),
                 self.txtSku,
                 ft.Row([ft.ElevatedButton("buscar",on_click=self.getDataArticle),txtResult]),
                 txtNombre,

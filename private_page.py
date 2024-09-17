@@ -90,6 +90,7 @@ class PrivatePage:
         self.page.update()
 
     def segunda(self, e):
+        self.page.session.set("idConteo", {"number":"145"})
         self.page.go('/conteo')
         self.page.update()
 
