@@ -5,6 +5,7 @@ import flet as ft
 from login_page import LoginPage
 from private_page import PrivatePage
 from register_page import RegisterPage
+from cont_page import ContPage
 
 def main(page: ft.Page):
     current_working_directory = os.getcwd()
@@ -41,6 +42,15 @@ def main(page: ft.Page):
                     [PrivatePage(page).build()]
                 )
             )
+
+        if page.route == '/conteo':
+            page.views.append(
+                ft.View(
+                    "/conteo",
+                    [ContPage(page).build()]
+                )
+            )
+
 
         if page.route == '/register':
             page.views.append(

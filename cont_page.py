@@ -1,6 +1,6 @@
 import flet as ft
 
-class PrivatePage:
+class ContPage:
     def __init__(self, page):
         self.page = page  # Guardamos la referencia a la página
 
@@ -10,24 +10,17 @@ class PrivatePage:
             datalogin = self.page.session.get("loginme")
             if datalogin["value"]:
                 name = datalogin["username"]
-                msg = f"Hello {name}"
+                msg = f"Hello 2da pagina {name}"
         return ft.Container(
             bgcolor=ft.colors.BLUE_200,
             padding=10,
             content=ft.Column([
-                ft.Text("Sección del usuario", size=30),
+                ft.Text("esta es la segunda pagina", size=30),
                 ft.Text(f"{msg}"),
-                ft.Row([ft.ElevatedButton("Logout",
+                ft.ElevatedButton("Logout",
                                   bgcolor=ft.colors.RED,
                                   color=ft.colors.WHITE,
-                                  on_click=self.logout
-                                  ),
-                        ft.ElevatedButton("Ir a segunda",
-                                        bgcolor=ft.colors.BLUE,
-                                        color=ft.colors.YELLOW,
-                                        on_click=self.segunda
-                                        )
-                ])
+                                  on_click=self.logout)
             ])
         )
 
@@ -36,6 +29,4 @@ class PrivatePage:
         self.page.go('/login')
         self.page.update()
 
-    def segunda(self, e):
-        self.page.go('/conteo')
-        self.page.update()
+
