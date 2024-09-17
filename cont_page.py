@@ -80,11 +80,13 @@ class ContPage:
 
         res=200 #producto procesado
 
-
-        self.page.snack_bar = ft.SnackBar(
-            ft.Text("Insertado",size=15),bgcolor="green"
+        snack_bar = ft.SnackBar(
+            ft.Text("Insertado", size=15),
+            bgcolor="green"
         )
-        self.page.snack_bar.open=True
+        # Añadir snack bar a la página usando overlay
+        self.page.overlay.append(snack_bar)
+        snack_bar.open = True
 
         txtNombre.visible = False   
         txtCantidad.visible=False
