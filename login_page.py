@@ -5,24 +5,44 @@ import json
 class LoginPage:
     def __init__(self, page):
         self.page = page  # Guardamos la referencia a la página
-        self.username = ft.TextField(label="User name")
-        self.password = ft.TextField(label="Password")
+        self.username = ft.TextField(label="Usuario")
+        self.password = ft.TextField(label="Contraseña")
 
     def build(self) -> ft.Container:
         return ft.Container(
-            bgcolor=ft.colors.YELLOW_200,
+            gradient= ft.LinearGradient(['indigo', 'blue']),     
+            width=380,
+            height=300,
+            border_radius=20,
             padding=10,
             content=ft.Column([
-                ft.Text("Login Account", size=30),
+                ft.Text("Ingresar", size=30, width=360, weight="w900", text_align="center"),
                 self.username,
                 self.password,
-                ft.ElevatedButton("Login Now",
-                                  bgcolor="blue", color="white",
-                                  on_click=self.loginbtn
-                                  ),
-                ft.TextButton("Register me",
-                              on_click=self.registerbtn
-                              ),
+                ft.Container(
+                            ft.ElevatedButton(
+                                content = ft.Text(
+                                    'INICIAR',
+                                    color = 'white',
+                                    weight ='w500',
+                                    ),
+                                width =280,
+                                bgcolor = 'blue',
+                                on_click=self.loginbtn,
+                                ),
+                                padding = ft.padding.only(25,10)
+                            ),
+                ft.Container(
+                            ft.Row([
+                                ft.Text(
+                                    '¿No tienes una cuenta?'
+                                    ),
+                                ft.TextButton(
+                                    'Crear una cuenta', on_click=self.registerbtn
+                                    ),
+                                ], spacing=8),
+                            padding = ft.padding.only(40)
+                ),
             ])
         )
 
