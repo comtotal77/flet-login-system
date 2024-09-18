@@ -1,6 +1,7 @@
 import flet as ft
 import json
 
+from data_base import DataAccess
 
 class LoginPage:
     def __init__(self, page):
@@ -27,24 +28,18 @@ class LoginPage:
         )
 
     def loginbtn(self, e):
-        with open('login.json', 'r') as f:
-            data = json.load(f)
+        found = False
         username = self.username.value
         password = self.password.value
-
-        found = False
-        for user in data["users"]:
-            if user['name'] == username and user['password'] == password:
-                found = True
-                print("Login success !!!")
-                datalogin = {
-                    "value": True,
-                    "username": username
-                }
-                break
-
-        if found:
+        found= DataAccess()
+        encontro=found.buscaLogin(username,password)
+        if encontro:
             print("Redirecting...")
+            datalogin = {
+                "value": True,
+                "datos": encontro
+            }
+
             self.page.session.set("loginme", datalogin)
             self.page.go("/private")
         else:
@@ -56,6 +51,8 @@ class LoginPage:
             # Añadir snack bar a la página usando overlay
             self.page.overlay.append(snack_bar)
             snack_bar.open = True
+            self.username.value=""
+            self.password.value=""
         self.page.update()
 
     def registerbtn(self, e):

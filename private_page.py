@@ -61,7 +61,11 @@ class PrivatePage:
         if self.page.session.contains_key("loginme"):
             datalogin = self.page.session.get("loginme")
             if datalogin["value"]:
-                name = datalogin["username"]
+                
+                #name = datalogin["username"]
+                sessData= datalogin["datos"]
+                name = sessData[3]
+
                 msg = f"Hello {name}"
         return ft.Container(
             bgcolor=ft.colors.BLUE_200,
