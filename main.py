@@ -66,4 +66,10 @@ def main(page: ft.Page):
     page.update()
 
 
-ft.app(target=main)
+if __name__ == '__main__':
+    modo="e" #por defecto.  si comento la siguiente línea siempre será modo escritorio (e)
+    modo = input("¿Desea ejecutar la aplicación en modo web o escritorio? (web(w)/escritorio(e)): ").strip().lower()
+    if modo == "w":
+        ft.app(target=main,view="web_browser",port=8550)
+    else:
+        ft.app(target=main)
