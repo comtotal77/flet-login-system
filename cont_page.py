@@ -16,17 +16,21 @@ class ContPage:
         self.existencia=0
 
     def build(self) -> ft.Container:
+        if not self.page.session.contains_key("loginme"):
+            self.page.go('/login')  # Redirigir al login si no está logueado
+
         global txtNombre,txtCantidad,btnInsertCount,txtResult
         msg = ''
-        if self.page.session.contains_key("loginme"):
-            datalogin = self.page.session.get("loginme")
-            datalogin2 = self.page.session.get("idConteo")
-            if datalogin2:
-                idConteo = datalogin2["number"]
-            #si no retornar OJOOOOO
-            if datalogin["value"]:
-                name = datalogin["username"]
-                msg = f"Hello {name} estás en el conteo {idConteo}"
+        msg2 = ''
+        datalogin = self.page.session.get("loginme")
+        datalogin2 = self.page.session.get("datosConteo")
+        idConteo = datalogin2["id"]
+        almacen = datalogin2["almacen"]
+        sessData= datalogin["datos"]
+        if datalogin["value"]:
+            name = sessData[3]
+            msg = f"Hello {name} estás en el conteo {idConteo}"
+            msg2 = f"Correspondiente al almacen {almacen}"
         #txtSku=ft.TextField(label="Indica el SKU a buscar")
         self.txtSku.on_focus = self.borrarSku
         txtNombre = ft.TextField(label="Nombre", visible=False, read_only=True)
@@ -38,6 +42,7 @@ class ContPage:
             padding=10,
             content=ft.Column([
                 ft.Text(f"{msg}"),
+                ft.Text(f"{msg2}"),
                 self.txtSku,
                 ft.Row([ft.ElevatedButton("buscar",on_click=self.getDataArticle),txtResult]),
                 txtNombre,

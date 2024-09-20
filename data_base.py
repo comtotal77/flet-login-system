@@ -28,3 +28,21 @@ class DataAccess:
         else:
             print("No se encontró el usuario con los credenciales proporcionados.")
             return False
+    def conteosxUsuario(self,idUsuario):
+        # Consulta para verificar la coincidencia
+        conn = sqlite3.connect(self.dbStr)
+        cursor = conn.cursor()
+        cursor.execute(f'''SELECT * FROM conteos WHERE dni_usuario = {idUsuario}''')
+        
+        # Obtener el resultado de la consulta
+        usuario = cursor.fetchall()
+        
+        # Cerrar la conexión
+        conn.close()
+        
+        # Verificar si el usuario fue encontrado
+        if usuario:
+            return usuario
+        else:
+            print("No se encontraron conteos para este usuario")
+            return False
