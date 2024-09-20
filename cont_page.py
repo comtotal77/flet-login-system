@@ -19,7 +19,7 @@ class ContPage:
         if not self.page.session.contains_key("loginme"):
             self.page.go('/login')  # Redirigir al login si no está logueado
 
-        global txtNombre,txtCantidad,btnInsertCount,txtResult
+        global txtNombre,txtCantidad,btnInsertCount,txtResult,almacen
         msg = ''
         msg2 = ''
         datalogin = self.page.session.get("loginme")
@@ -66,7 +66,7 @@ class ContPage:
         #requests con la información de un artículo según esl sku
         url="http://127.0.0.1:5000/infoArt/SKU123456"
         url = os.getenv("URL_ENDPOINT")
-        url += "/getAlmacenByArti/"+str(self.txtSku.value)+'/01'
+        url += "/getAlmacenByArti/"+str(self.txtSku.value)+'/'+almacen
 
         payload = {}
         headers = {}
