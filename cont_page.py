@@ -48,10 +48,10 @@ class ContPage:
                 txtNombre,
                 txtCantidad,
                 btnInsertCount,
-                ft.ElevatedButton("Logout",
+                ft.ElevatedButton("Cerrar sesion de conteo",
                                   bgcolor=ft.colors.RED,
                                   color=ft.colors.WHITE,
-                                  on_click=self.logout)
+                                  on_click=self.logoutCount)
             ])
         )
 
@@ -124,7 +124,9 @@ class ContPage:
         self.txtSku.value=""
         self.page.update()
 
-    def logout(self, e):
-        self.page.session.clear()
-        self.page.go('/login')
+    def logoutCount(self, e):
+        #self.page.session.clear()
+        #eliminar datos de la sesión
+        #productos contados en la sesion van a 1
+        self.page.go('/private')
         self.page.update()
