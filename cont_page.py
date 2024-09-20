@@ -34,7 +34,7 @@ class ContPage:
         #txtSku=ft.TextField(label="Indica el SKU a buscar")
         self.txtSku.on_focus = self.borrarSku
         txtNombre = ft.TextField(label="Nombre", visible=False, read_only=True)
-        txtCantidad = ft.TextField(label="Cantidad", visible=False)
+        txtCantidad = ft.TextField(label="Cantidad", visible=False,input_filter=ft.InputFilter(allow=True, regex_string=r"^[0-9]*$", replacement_string=""))
         btnInsertCount=ft.ElevatedButton("siguiente",visible=False,on_click=self.addToDB)
         txtResult=ft.Text("No encontrado", visible=False)                
         return ft.Container(
