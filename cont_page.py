@@ -91,9 +91,10 @@ class ContPage:
             if item["codigo"] == self.txtSku.value:
                 txtNombre.value =str(item["nombre"])
                 self.existencia =item["existencia"]
-                txtNombre.visible = True   
+                txtNombre.visible = True
+                txtResult.visible = True
                 txtCantidad.visible=True
-                btnInsertCount.visible=True                
+                btnInsertCount.visible=True
                 break
             else:
                 txtNombre.value = "No encontrado"
@@ -116,6 +117,7 @@ class ContPage:
         self.page.overlay.append(snack_bar)
         snack_bar.open = True
         self.existencia=0
+        txtResult.visible = False 
         txtNombre.visible = False   
         txtCantidad.visible=False
         btnInsertCount.visible=False
