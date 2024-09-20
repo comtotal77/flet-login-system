@@ -7,7 +7,7 @@ class LoginPage:
     def __init__(self, page):
         self.page = page  # Guardamos la referencia a la página
         self.username = ft.TextField(label="User name")
-        self.password = ft.TextField(label="Password")
+        self.password = ft.TextField(label="Password", password=True, can_reveal_password=True)
 
     def build(self) -> ft.Container:
         return ft.Container(
