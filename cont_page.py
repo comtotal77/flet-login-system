@@ -1,8 +1,13 @@
 import flet as ft
 import requests
 import json
+import time
 from dotenv import load_dotenv
 import os
+import random
+import string
+
+from data_base import DataAccess
 
 load_dotenv(".env")
 ###Esto es de la segunda rama - commit 1
@@ -14,12 +19,17 @@ class ContPage:
         self.page = page  # Guardamos la referencia a la página
         self.txtSku=ft.TextField(label="Indica el SKU a buscar")
         self.existencia=0
+        self.searchData=DataAccess()
+        self.sessionData=0
 
     def build(self) -> ft.Container:
         if not self.page.session.contains_key("loginme"):
             self.page.go('/login')  # Redirigir al login si no está logueado
 
-        global txtNombre,txtCantidad,btnInsertCount,txtResult,almacen
+        caracteres = string.ascii_letters + string.digits  # Letras mayúsculas, minúsculas y dígitos
+        self.sessionData=''.join(random.choices(caracteres, k=20))
+
+        global txtNombre,txtCantidad,btnInsertCount,txtResult,almacen,idConteo,idUsuario
         msg = ''
         msg2 = ''
         datalogin = self.page.session.get("loginme")
@@ -29,6 +39,7 @@ class ContPage:
         sessData= datalogin["datos"]
         if datalogin["value"]:
             name = sessData[3]
+            idUsuario=sessData[0]
             msg = f"Hello {name} estás en el conteo {idConteo}"
             msg2 = f"Correspondiente al almacen {almacen}"
         #txtSku=ft.TextField(label="Indica el SKU a buscar")
@@ -86,19 +97,38 @@ class ContPage:
         #                     "descrip":"Otro articulo2 más de la tienda",
         #                 }
         #            ]
-        for item in jsonresult:
+
+        ##buscar si el código ya está contado select el codigo si ya está en idconteo y su estatus es 1
+
+        ##de ser así debe indicarlo en txtResult 
+        if jsonresult !=[]:
+
+            ##buscar si el código ya está contado select el codigo si ya está en idconteo y su estatus es 1
+            #if self.txtSku.value==1:
+            item=jsonresult[0]
             print(item["codigo"])
-            if item["codigo"] == self.txtSku.value:
+
+            if self.searchData.articuloContado(idConteo,self.txtSku.value):
+                self.txtResultMsg(self,mensaje="Este artículo ya fue contado")
+
+            ##OJOOO si no hay más articulos que contar
+            elif item["codigo"] == self.txtSku.value:
                 txtNombre.value =str(item["nombre"])
                 self.existencia =item["existencia"]
                 txtNombre.visible = True
                 txtResult.visible = True
                 txtCantidad.visible=True
                 btnInsertCount.visible=True
-                break
-            else:
-                txtNombre.value = "No encontrado"
-                txtResult.visible=True
+                self.page.update()
+        else:
+            self.txtResultMsg(self,mensaje="No Encontrado")
+
+    def txtResultMsg(self,e,mensaje):
+        txtResult.value = mensaje
+        txtResult.visible=True
+        self.page.update()
+        time.sleep(5)
+        self.txtSku.focus()
         self.page.update()
 
     def addToDB(self, e):
@@ -107,6 +137,7 @@ class ContPage:
         print("en la BD se insertara la  diferencia:"+str(cantidad_interna))
         url="http://127.0.0.1:5000/addCont/idproducto/idconteo"
 
+        self.searchData.insertaArticuloCont(idConteo,self.txtSku.value,txtCantidad.value,cantidad_interna,self.sessionData)
         res=200 #producto procesado
 
         snack_bar = ft.SnackBar(
@@ -120,6 +151,7 @@ class ContPage:
         txtResult.visible = False 
         txtNombre.visible = False   
         txtCantidad.visible=False
+        txtCantidad.value=0
         btnInsertCount.visible=False
         self.txtSku.value=""
         self.page.update()
@@ -128,5 +160,6 @@ class ContPage:
         #self.page.session.clear()
         #eliminar datos de la sesión
         #productos contados en la sesion van a 1
+        self.searchData.cierraProcesoConteo(idConteo,idUsuario,self.sessionData)
         self.page.go('/private')
         self.page.update()

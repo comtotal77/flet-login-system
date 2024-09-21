@@ -47,6 +47,7 @@ class PrivatePage:
             msg = f"Hello {name}"
 
         searchData= DataAccess()
+        searchData.cierraProcesoConteo(0,sessData[0],0)        ##Cierra conteos abiertos del usuario
         tablaConteos=searchData.conteosxUsuario(sessData[0])
         datalogin['tablaconteos'] = tablaConteos
         self.page.session.set("loginme", datalogin)
