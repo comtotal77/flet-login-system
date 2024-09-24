@@ -8,14 +8,16 @@ import random
 import string
 
 from data_base import DataAccess
+from base_page import BasePage
 
 load_dotenv(".env")
 ###Esto es de la segunda rama - commit 1
 #aprendizaje: txtSku lo defino en init y después lo llamo en todas ls instancias de la clase con self
 #             en cambio los demás (txtNombre,txtCantidad,btnInsertCount,txtResult) los creo en buid pero para poder llamarlos
 #             necesito decirle que son global
-class ContPage:
+class ContPage(BasePage):
     def __init__(self, page):
+        super().__init__(page)        
         self.page = page  # Guardamos la referencia a la página
         self.txtSku=ft.TextField(label="Indica el SKU a buscar")
         self.existencia=0
@@ -48,23 +50,23 @@ class ContPage:
         txtCantidad = ft.TextField(label="Cantidad", visible=False,input_filter=ft.InputFilter(allow=True, regex_string=r"^[0-9]*$", replacement_string=""))
         btnInsertCount=ft.ElevatedButton("siguiente",visible=False,on_click=self.addToDB)
         txtResult=ft.Text("No encontrado", visible=False)                
-        return ft.Container(
-            bgcolor=ft.colors.BLUE_200,
-            padding=10,
-            content=ft.Column([
-                ft.Text(f"{msg}"),
-                ft.Text(f"{msg2}"),
-                self.txtSku,
-                ft.Row([ft.ElevatedButton("buscar",on_click=self.getDataArticle),txtResult]),
-                txtNombre,
-                txtCantidad,
-                btnInsertCount,
-                ft.ElevatedButton("Cerrar sesion de conteo",
-                                  bgcolor=ft.colors.RED,
-                                  color=ft.colors.WHITE,
-                                  on_click=self.logoutCount)
-            ])
-        )
+  
+        content=ft.Column([
+            ft.Text(f"{msg}"),
+            ft.Text(f"{msg2}"),
+            self.txtSku,
+            ft.Row([ft.ElevatedButton("buscar",on_click=self.getDataArticle),txtResult]),
+            txtNombre,
+            txtCantidad,
+            btnInsertCount,
+            ft.ElevatedButton("Cerrar sesion de conteo",
+                                bgcolor=ft.colors.RED,
+                                color=ft.colors.WHITE,
+                                on_click=self.logoutCount)
+        ])
+
+        # Llama al layout común con el contenido específico de login
+        return self.common_layout(content)    
 
 
     def borrarSku(self, e):
@@ -84,19 +86,6 @@ class ContPage:
         response = requests.request("GET", url, headers=headers, data=payload)
 
         jsonresult=json.loads(response.text)
-        #linea para probar rama
-        # jsonresult=[
-        #                 {
-        #                     "sku":"sku1",
-        #                     "nombre":"Articulo1",
-        #                     "descrip":"Otro articulo más de la tienda",
-        #                 },
-        #                 {
-        #                     "sku":"sku2",
-        #                     "nombre":"Articulo2",
-        #                     "descrip":"Otro articulo2 más de la tienda",
-        #                 }
-        #            ]
 
         ##buscar si el código ya está contado select el codigo si ya está en idconteo y su estatus es 1
 
@@ -112,7 +101,7 @@ class ContPage:
                 self.txtResultMsg(self,mensaje="Este artículo ya fue contado")
 
             ##OJOOO si no hay más articulos que contar
-            elif item["codigo"] == self.txtSku.value:
+            elif item["codigo"].strip() == self.txtSku.value.strip():
                 txtNombre.value =str(item["nombre"])
                 self.existencia =item["existencia"]
                 txtNombre.visible = True

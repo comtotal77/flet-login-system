@@ -2,30 +2,35 @@ import flet as ft
 import json
 
 from data_base import DataAccess
+from base_page import BasePage
 
-class LoginPage:
+class LoginPage(BasePage):
     def __init__(self, page):
+        super().__init__(page)
         self.page = page  # Guardamos la referencia a la página
         self.username = ft.TextField(label="User name")
         self.password = ft.TextField(label="Password", password=True, can_reveal_password=True)
 
     def build(self) -> ft.Container:
-        return ft.Container(
-            bgcolor=ft.colors.YELLOW_200,
-            padding=10,
-            content=ft.Column([
+        
+        login_content = ft.Column(
+            [
+                
                 ft.Text("Login Account", size=30),
                 self.username,
                 self.password,
                 ft.ElevatedButton("Login Now",
-                                  bgcolor="blue", color="white",
-                                  on_click=self.loginbtn
-                                  ),
+                                bgcolor="blue", color="white",
+                                on_click=self.loginbtn
+                                ),
                 ft.TextButton("Register me",
-                              on_click=self.registerbtn
-                              ),
-            ])
+                            on_click=self.registerbtn
+                            ),
+
+            ]
         )
+        # Llama al layout común con el contenido específico de login
+        return self.common_layout(login_content)
 
     def loginbtn(self, e):
         found = False

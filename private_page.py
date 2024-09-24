@@ -1,8 +1,10 @@
 import flet as ft
 from data_base import DataAccess
+from base_page import BasePage
 
-class PrivatePage:
+class PrivatePage(BasePage):
     def __init__(self, page):
+        super().__init__(page)        
         self.page = page  # Guardamos la referencia a la página
 
     def build(self) -> ft.Container:
@@ -52,26 +54,22 @@ class PrivatePage:
         datalogin['tablaconteos'] = tablaConteos
         self.page.session.set("loginme", datalogin)
         mydt= create_data_table(tablaConteos)
-        return ft.Container(
-            bgcolor=ft.colors.BLUE_200,
-            padding=10,
-            content=ft.Column([
-                ft.Text("Sección del usuario", size=30),
-                ft.Text(f"{msg}"),
-                mydt,
-                ft.Row([ft.ElevatedButton("Logout",
-                                  bgcolor=ft.colors.RED,
-                                  color=ft.colors.WHITE,
-                                  on_click=self.logout
-                                  ),
-                        ft.ElevatedButton("Ir a segunda",
-                                        bgcolor=ft.colors.BLUE,
-                                        color=ft.colors.YELLOW,
-                                        on_click=self.segunda
-                                        )
-                ])
+
+        content=ft.Column([
+            ft.Text("Sección del usuario", size=30),
+            ft.Text(f"{msg}"),
+            mydt,
+            ft.Row([ft.ElevatedButton("Logout",
+                                bgcolor=ft.colors.RED,
+                                color=ft.colors.WHITE,
+                                on_click=self.logout
+                                )
             ])
-        )
+        ])
+        # Llama al layout común con el contenido específico de login
+        return self.common_layout(content)    
+
+
 
     def logout(self, e):
         self.page.session.clear()
