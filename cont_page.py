@@ -31,7 +31,7 @@ class ContPage(BasePage):
         caracteres = string.ascii_letters + string.digits  # Letras mayúsculas, minúsculas y dígitos
         self.sessionData=''.join(random.choices(caracteres, k=20))
 
-        global txtNombre,txtCantidad,btnInsertCount,txtResult,almacen,idConteo,idUsuario
+        global txtNombre,imgProd,txtCantidad,btnInsertCount,txtResult,almacen,idConteo,idUsuario
         msg = ''
         msg2 = ''
         datalogin = self.page.session.get("loginme")
@@ -47,6 +47,13 @@ class ContPage(BasePage):
         #txtSku=ft.TextField(label="Indica el SKU a buscar")
         self.txtSku.on_focus = self.borrarSku
         txtNombre = ft.TextField(label="Nombre", visible=False, read_only=True)
+        imgProd = ft.Image(
+            src=f"",
+            width=100,
+            height=100,
+            visible=False,
+            fit=ft.ImageFit.CONTAIN,
+        )
         txtCantidad = ft.TextField(label="Cantidad", visible=False,input_filter=ft.InputFilter(allow=True, regex_string=r"^[0-9]*$", replacement_string=""))
         btnInsertCount=ft.ElevatedButton("siguiente",visible=False,on_click=self.addToDB)
         txtResult=ft.Text("No encontrado", visible=False)                
@@ -57,6 +64,7 @@ class ContPage(BasePage):
             self.txtSku,
             ft.Row([ft.ElevatedButton("buscar",on_click=self.getDataArticle),txtResult]),
             txtNombre,
+            imgProd,
             txtCantidad,
             btnInsertCount,
             ft.ElevatedButton("Cerrar sesion de conteo",
@@ -76,6 +84,21 @@ class ContPage(BasePage):
 
 
     def getDataArticle(self, e):
+
+        def verifica_url(url):
+            try:
+                payload = {}
+                headers = {}
+                response = requests.request("GET", url, headers=headers, data=payload)
+                if response.status_code == 200:
+                    return True
+                else:
+                    return False
+            except requests.exceptions.RequestException as e:
+                print(f"Error al verificar la URL: {e}")
+                return False
+
+
         #requests con la información de un artículo según esl sku
         url="http://127.0.0.1:5000/infoArt/SKU123456"
         url = os.getenv("URL_ENDPOINT")
@@ -103,8 +126,21 @@ class ContPage(BasePage):
             ##OJOOO si no hay más articulos que contar
             elif item["codigo"].strip() == self.txtSku.value.strip():
                 txtNombre.value =str(item["nombre"])
+                urlImages = os.getenv("URL_IMAGES")
+                foto=str(item["rutafoto"]).strip()
+                indice = foto.rfind("\\")  # Encuentra la última aparición de \
+                nombre_archivo = foto[indice + 1:]  # Extrae todo después del último backslash
+                print(urlImages+nombre_archivo)
+                url=urlImages+nombre_archivo
+
+                # payload = {}
+                # headers = {}
+                # response = requests.request("GET", url, headers=headers, data=payload)
+                imgProd.src=urlImages+nombre_archivo
+
                 self.existencia =item["existencia"]
                 txtNombre.visible = True
+                imgProd.visible = True
                 txtResult.visible = True
                 txtCantidad.visible=True
                 btnInsertCount.visible=True
@@ -137,8 +173,9 @@ class ContPage(BasePage):
         self.page.overlay.append(snack_bar)
         snack_bar.open = True
         self.existencia=0
-        txtResult.visible = False 
-        txtNombre.visible = False   
+        txtResult.visible = False
+        txtNombre.visible = False
+        imgProd.visible = False 
         txtCantidad.visible=False
         txtCantidad.value=0
         btnInsertCount.visible=False

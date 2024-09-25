@@ -1,36 +1,38 @@
 import flet as ft
 import json
 import sqlite3
+import mysql.connector
+
+from dotenv import load_dotenv
+import os
+load_dotenv(".env")
 
 class DataAccess:
     def __init__(self):
         # Conectar a la base de datos (se crea si no existe)
-        self.dbStr='conteo_inventario.db'
-        self.conn = sqlite3.connect(self.dbStr, check_same_thread=False)
-        self.cursor = self.conn.cursor()
-        self.conn_abierta = True
+        host=os.getenv("LOCAL_DATABASE_HOST")
+        user=os.getenv("LOCAL_DATABASE_USER")
+        passw=os.getenv("LOCAL_DATABASE_PASS")
+        name=os.getenv("LOCAL_DATABASE_NAME")
+        port=os.getenv("LOCAL_DATABASE_PORT")
 
-    def verifyConex(self):
-        if not self.conn_abierta:
-            self.conn = sqlite3.connect(self.dbStr, check_same_thread=False)
-            self.cursor = self.conn.cursor()            
+        self.mydb = mysql.connector.connect(
+            host=host,
+            port=port,
+            user=user,
+            password=passw,
+            database=name
+        )
+        # Obtener un cursor para ejecutar consultas
+        self.mycursor = self.mydb.cursor()
 
     def buscaLogin(self,email,password):
-        # Consulta para verificar la coincidencia
-        # conn = sqlite3.connect(self.dbStr)
-        # cursor = conn.cursor()
 
-        self.verifyConex()
-
-
-        self.cursor.execute('''SELECT * FROM usuario WHERE email = ? AND pass = ?''', (email, password))
-        
-        # Obtener el resultado de la consulta
-        usuario = self.cursor.fetchone()
-        self.conn_abierta=not self.conn_abierta
-        
-        # Cerrar la conexión
-        self.conn.close()
+        sql_user = f'''SELECT * FROM usuario WHERE email = '{email}' AND pass = '{password}' '''
+        self.mycursor = self.mydb.cursor()
+        self.mycursor.execute(sql_user)
+        usuario = self.mycursor.fetchone()
+        self.mydb.close()
         
         # Verificar si el usuario fue encontrado
         if usuario:
@@ -43,17 +45,12 @@ class DataAccess:
         
     def conteosxUsuario(self,idUsuario):
         # Consulta para verificar la coincidencia
-        
-        self.verifyConex()
-        self.cursor.execute(f'''SELECT * FROM conteos WHERE dni_usuario = {idUsuario}''')
+        self.mycursor = self.mydb.cursor()
+        self.mycursor.execute(f'''SELECT * FROM conteos WHERE dni_usuario = {idUsuario}''')
         
         # Obtener el resultado de la consulta
-        usuario = self.cursor.fetchall()
-        
-        # Cerrar la conexión
-        self.conn.close()
-        
-        self.conn_abierta=not self.conn_abierta
+        usuario = self.mycursor.fetchall()
+        self.mycursor.close()
         
         # Verificar si el usuario fue encontrado
         if usuario:
@@ -63,17 +60,13 @@ class DataAccess:
             return False
         
     def articuloContado(self,idConteo,sku):
-        # Consulta para verificar la coincidencia
 
-        self.verifyConex()
-        self.cursor.execute(f'''SELECT * FROM conteo_proceso WHERE sku='{sku}' and status=1''')
+        self.mycursor = self.mydb.cursor()
+        self.mycursor.execute(f'''SELECT * FROM conteo_proceso WHERE sku='{sku}' and status=1''')
         
         # Obtener el resultado de la consulta
-        usuario = self.cursor.fetchone()
-        
-        # Cerrar la conexión
-        self.conn.close()
-        self.conn_abierta=not self.conn_abierta
+        usuario = self.mycursor.fetchone()
+        self.mycursor.close()
         
         # Verificar si el usuario fue encontrado
         if usuario:
@@ -85,26 +78,29 @@ class DataAccess:
     def insertaArticuloCont(self,idConteo,sku,contado,diferencia,sesion):
         # Insertar un nuevo usuario
         
-        self.verifyConex()
-
         import datetime
 
+        self.mycursor = self.mydb.cursor()
         ahora = datetime.datetime.now()
         fecha_formateada = ahora.strftime("%Y-%m-%d %H:%M:%S")
         fecha_hora=fecha_formateada
+        try:
 
-        self.cursor.execute('''
-            INSERT INTO conteo_proceso (id_Conteo, SKU, contado, diferencia,fecha_hora,status,sesion)
-            VALUES (?, ?, ?, ?, ?, ?, ?)''', (idConteo, sku, contado, diferencia,fecha_hora,0,sesion))
-        self.conn.commit()
-        self.conn.close()
-        self.conn_abierta=False
+            insert_query = """INSERT INTO conteo_proceso (id_Conteo, SKU, contado, diferencia,fecha_hora,status,sesion) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+            insert_data= (idConteo, sku, contado, diferencia,fecha_hora,0,sesion)
+            self.mycursor.execute(insert_query, insert_data)
+            self.mydb.commit()
+        except Exception as e:
+            print(f"Error: {e}")
+            self.mydb.rollback()
+            return("ERROR")
+
+
+        self.mycursor.close()
 
     def cierraProcesoConteo(self,idConteo,idUsuario,sesion):
-        
-        self.verifyConex()
-        
-        
+
+        self.mycursor = self.mydb.cursor()
         if idConteo==0 and sesion==0:
             sqlSentence=f'''UPDATE conteo_proceso set status=1 where dni_usuario={idUsuario}'''
             sqlSentence = f"""
@@ -124,7 +120,6 @@ class DataAccess:
             '''
         else:
             sqlSentence=f'''UPDATE conteo_proceso set status=1 WHERE sesion="{sesion}"'''
-        self.cursor.execute(sqlSentence)
-        self.conn.commit()
-        self.conn.close()
-        self.conn_abierta=False
+        self.mycursor.execute(sqlSentence)
+        self.mycursor.close()
+        self.mydb.commit()

@@ -6,11 +6,11 @@ class MenuDetail:
 
     def build(self) -> ft.Container:
         return ft.Container(
-            bgcolor = ft.colors.RED_500,
+            bgcolor = ft.colors.BLUE_100,
             width = 800,
-            height = 50,
+            height = 40,
             padding = 0,
             content=ft.Column([
-                ft.Text("Ojoooo", size=20),
+                ft.Text("Control Inventario CID", size=20,color="BLACK"),
             ])
         )

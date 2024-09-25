@@ -19,22 +19,25 @@ class PrivatePage(BasePage):
                 ft.DataColumn(ft.Text("actions"))
             ]
 
-            rows = [
-                ft.DataRow(
-                    cells=[
-                        ft.DataCell(ft.Text(row[1])),
-                        ft.DataCell(ft.Text(row[2])),
-                        ft.DataCell(ft.Text(row[3])),
-                        ft.DataCell(ft.Text(row[4])),
-                        ft.DataCell(ft.Text(row[5])),
-                        ft.DataCell(ft.Row([
-                            ft.IconButton(ft.icons.PLAY_ARROW, icon_color="red", data=row[0], on_click=lambda e, r1=row[1], r4=row[4]: self.segunda(e, r1, r4)),
-                            ft.IconButton("create", icon_color="red", data=row[0], on_click=self.otraopcion)
-                        ]))
-                    ]
-                )
-                for row in data
-            ]
+            if data:
+                rows = [
+                    ft.DataRow(
+                        cells=[
+                            ft.DataCell(ft.Text(row[1])),
+                            ft.DataCell(ft.Text(row[2])),
+                            ft.DataCell(ft.Text(row[3])),
+                            ft.DataCell(ft.Text(row[4])),
+                            ft.DataCell(ft.Text(row[5])),
+                            ft.DataCell(ft.Row([
+                                ft.IconButton(ft.icons.PLAY_ARROW, icon_color="red", data=row[0], on_click=lambda e, r1=row[1], r4=row[4]: self.segunda(e, r1, r4)),
+                                ft.IconButton("create", icon_color="red", data=row[0], on_click=self.otraopcion)
+                            ]))
+                        ]
+                    )
+                    for row in data
+                ]
+            else:
+                rows = []
 
             return ft.DataTable(columns=columns, rows=rows)
 
