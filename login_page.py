@@ -1,70 +1,50 @@
 import flet as ft
 import json
 
+from data_base import DataAccess
+from base_page import BasePage
 
-class LoginPage:
+class LoginPage(BasePage):
     def __init__(self, page):
+        super().__init__(page)
         self.page = page  # Guardamos la referencia a la página
-        self.username = ft.TextField(label="Usuario")
-        self.password = ft.TextField(label="Contraseña")
+        self.username = ft.TextField(label="User name")
+        self.password = ft.TextField(label="Password", password=True, can_reveal_password=True)
 
     def build(self) -> ft.Container:
-        return ft.Container(
-            gradient= ft.LinearGradient(['indigo', 'blue']),     
-            width=380,
-            height=300,
-            border_radius=20,
-            padding=10,
-            content=ft.Column([
-                ft.Text("Ingresar", size=30, width=360, weight="w900", text_align="center"),
+        
+        login_content = ft.Column(
+            [
+                
+                ft.Text("Login Account", size=30),
                 self.username,
                 self.password,
-                ft.Container(
-                            ft.ElevatedButton(
-                                content = ft.Text(
-                                    'INICIAR',
-                                    color = 'white',
-                                    weight ='w500',
-                                    ),
-                                width =280,
-                                bgcolor = 'blue',
-                                on_click=self.loginbtn,
+                ft.ElevatedButton("Login Now",
+                                bgcolor="blue", color="white",
+                                on_click=self.loginbtn
                                 ),
-                                padding = ft.padding.only(25,10)
+                ft.TextButton("Register me",
+                            on_click=self.registerbtn
                             ),
-                ft.Container(
-                            ft.Row([
-                                ft.Text(
-                                    '¿No tienes una cuenta?'
-                                    ),
-                                ft.TextButton(
-                                    'Crear una cuenta', on_click=self.registerbtn
-                                    ),
-                                ], spacing=8),
-                            padding = ft.padding.only(40)
-                ),
-            ])
+
+            ]
         )
+        # Llama al layout común con el contenido específico de login
+        return self.common_layout(login_content)
 
     def loginbtn(self, e):
-        with open('login.json', 'r') as f:
-            data = json.load(f)
+        found = False
         username = self.username.value
         password = self.password.value
-
-        found = False
-        for user in data["users"]:
-            if user['name'] == username and user['password'] == password:
-                found = True
-                print("Login success !!!")
-                datalogin = {
-                    "value": True,
-                    "username": username
-                }
-                break
-
-        if found:
+        found= DataAccess()
+        encontro=found.buscaLogin(username,password)
+        if encontro:
             print("Redirecting...")
+            datalogin = {
+                "value": True,
+                "datos": encontro
+            }
+
             self.page.session.set("loginme", datalogin)
             self.page.go("/private")
         else:
@@ -76,6 +56,8 @@ class LoginPage:
             # Añadir snack bar a la página usando overlay
             self.page.overlay.append(snack_bar)
             snack_bar.open = True
+            self.username.value=""
+            self.password.value=""
         self.page.update()
 
     def registerbtn(self, e):
